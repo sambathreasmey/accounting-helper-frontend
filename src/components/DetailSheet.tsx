@@ -6,6 +6,7 @@ import { useI18n, STATUS_KEY } from "@/lib/i18n";
 import { STATUS_ICON, fmtDate, poTotal } from "@/lib/format";
 import { useToast } from "@/lib/toast";
 import { haptic, showConfirm } from "@/lib/telegram";
+import ItemRow from "./ItemRow";
 import type { PO, POItem } from "@/lib/types";
 
 interface EditableRow extends POItem {
@@ -78,7 +79,6 @@ export default function DetailSheet({
   };
 
   const removeRow = (key: string) => {
-    haptic("light");
     setRows((prev) => (prev.length > 1 ? prev.filter((r) => r.key !== key) : prev));
   };
 
@@ -206,11 +206,10 @@ export default function DetailSheet({
                 <span>{t("col_qty")}</span>
                 <span>{t("col_unit")}</span>
                 <span>{t("col_price")}</span>
-                {editable ? <span /> : null}
               </div>
               <div id="items-editor">
                 {rows.map((row) => (
-                  <div className="item-row" key={row.key}>
+                  <ItemRow key={row.key} disabled={!editable || rows.length <= 1} onRemove={() => removeRow(row.key)}>
                     <input
                       className="f-name"
                       value={row.name}
@@ -243,18 +242,7 @@ export default function DetailSheet({
                       disabled={!editable}
                       onChange={(e) => updateRow(row.key, { price: Number(e.target.value) })}
                     />
-                    {editable ? (
-                      <button
-                        type="button"
-                        className="f-remove"
-                        disabled={rows.length <= 1}
-                        onClick={() => removeRow(row.key)}
-                        title={t("remove_item")}
-                      >
-                        ✕
-                      </button>
-                    ) : null}
-                  </div>
+                  </ItemRow>
                 ))}
               </div>
 
