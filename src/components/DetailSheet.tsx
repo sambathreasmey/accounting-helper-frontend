@@ -77,6 +77,11 @@ export default function DetailSheet({
     setRows((prev) => [...prev, newRow()]);
   };
 
+  const removeRow = (key: string) => {
+    haptic("light");
+    setRows((prev) => (prev.length > 1 ? prev.filter((r) => r.key !== key) : prev));
+  };
+
   const submitDelete = async () => {
     if (!po) return;
     haptic("medium");
@@ -201,6 +206,7 @@ export default function DetailSheet({
                 <span>{t("col_qty")}</span>
                 <span>{t("col_unit")}</span>
                 <span>{t("col_price")}</span>
+                {editable ? <span /> : null}
               </div>
               <div id="items-editor">
                 {rows.map((row) => (
@@ -237,6 +243,17 @@ export default function DetailSheet({
                       disabled={!editable}
                       onChange={(e) => updateRow(row.key, { price: Number(e.target.value) })}
                     />
+                    {editable ? (
+                      <button
+                        type="button"
+                        className="f-remove"
+                        disabled={rows.length <= 1}
+                        onClick={() => removeRow(row.key)}
+                        title={t("remove_item")}
+                      >
+                        ✕
+                      </button>
+                    ) : null}
                   </div>
                 ))}
               </div>

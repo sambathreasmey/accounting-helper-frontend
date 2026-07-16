@@ -583,7 +583,7 @@ a {
 
 .row-labels {
   display: grid;
-  grid-template-columns: 2fr 0.8fr 0.9fr 0.9fr;
+  grid-template-columns: 2fr 0.8fr 0.9fr 0.9fr 24px;
   gap: 6px;
   font-size: 11px;
   color: var(--hint);
@@ -601,9 +601,10 @@ a {
 
 .item-row {
   display: grid;
-  grid-template-columns: 2fr 0.8fr 0.9fr 0.9fr;
+  grid-template-columns: 2fr 0.8fr 0.9fr 0.9fr 24px;
   gap: 6px;
   margin-bottom: 8px;
+  align-items: center;
 }
 
 .item-row input,
@@ -619,6 +620,29 @@ a {
 
 .item-row input:disabled {
   opacity: 0.6;
+}
+
+.f-remove {
+  border: none;
+  background: transparent;
+  color: var(--failed);
+  font-size: 15px;
+  line-height: 1;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.f-remove:active {
+  background: color-mix(in srgb, var(--failed) 14%, transparent);
+}
+
+.f-remove:disabled {
+  opacity: 0.3;
 }
 
 .actions {
