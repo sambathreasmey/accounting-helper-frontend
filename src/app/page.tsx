@@ -30,7 +30,11 @@ export default function Page() {
 
         <main>
           {tab === "dashboard" ? (
-            <Dashboard key={`dashboard-${refreshKey}`} onOpenPO={setOpenPoId} />
+            <Dashboard
+              key={`dashboard-${refreshKey}`}
+              onOpenPO={setOpenPoId}
+              onViewAll={() => setTab("history")}
+            />
           ) : (
             <History key={`history-${refreshKey}`} onOpenPO={setOpenPoId} />
           )}

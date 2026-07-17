@@ -10,7 +10,13 @@ import type { DashboardData, PO } from "@/lib/types";
 
 const ORDER: Array<keyof DashboardData["counts"]> = ["pending", "dispatched", "completed", "failed"];
 
-export default function Dashboard({ onOpenPO }: { onOpenPO: (id: string) => void }) {
+export default function Dashboard({
+  onOpenPO,
+  onViewAll,
+}: {
+  onOpenPO: (id: string) => void;
+  onViewAll?: () => void;
+}) {
   const { t } = useI18n();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -54,16 +60,25 @@ export default function Dashboard({ onOpenPO }: { onOpenPO: (id: string) => void
         <div className="stats-grid">
           {ORDER.map((key) => (
             <div className={`stat-card ${key}`} key={key}>
-              <div className="stat-value">{data?.counts[key] ?? 0}</div>
-              <div className="stat-label">
-                {STATUS_ICON[key as string]} {t(STATUS_KEY[key as string])}
+              <div className="stat-icon">{STATUS_ICON[key as string]}</div>
+              <div className="stat-info">
+                <div className="stat-value">{data?.counts[key] ?? 0}</div>
+                <div className="stat-label">{t(STATUS_KEY[key as string])}</div>
+                <span className="stat-underline" />
               </div>
             </div>
           ))}
         </div>
       )}
 
-      <h2 className="section-title">{t("recent_orders")}</h2>
+      <div className="section-title-row">
+        <h2 className="section-title">📄 {t("recent_orders")}</h2>
+        {onViewAll ? (
+          <button className="view-all-link" onClick={onViewAll}>
+            {t("view_all")} ›
+          </button>
+        ) : null}
+      </div>
       {error ? (
         <div className="po-list">
           <div className="empty-state">

@@ -32,7 +32,9 @@ export default function UserHeader() {
       {me.photo_url ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img className="user-avatar" src={me.photo_url} alt="" />
-      ) : null}
+      ) : (
+        <div className="user-avatar-fallback">🕶️</div>
+      )}
       <div className="user-header-text">
         <div className="user-greeting">{t("greeting", name)}</div>
         <div className="user-sub">{t("subtitle")}</div>

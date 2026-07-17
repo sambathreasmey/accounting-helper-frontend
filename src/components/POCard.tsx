@@ -114,11 +114,14 @@ export default function POCard({
         onTouchCancel={onEnd}
       >
         <div className="po-card-main">
-          <div className="po-card-title">
-            {po.po_id} — {po.supplier_name}
-          </div>
-          <div className="po-card-sub">
-            {fmtDate(po.created_at, lang)} · ${poTotal(po)}
+          <div className="po-card-icon">🛍️</div>
+          <div className="po-card-text">
+            <div className="po-card-title">
+              {po.po_id} — {po.supplier_name}
+            </div>
+            <div className="po-card-sub">
+              📅 {fmtDate(po.created_at, lang)} &nbsp;•&nbsp; ${poTotal(po)}
+            </div>
           </div>
         </div>
         <span className={`badge ${po.status}`}>
