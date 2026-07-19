@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ChevronRight, FileText, ReceiptText, AlertTriangle } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { useI18n, STATUS_KEY } from "@/lib/i18n";
 import { STATUS_ICON } from "@/lib/format";
@@ -52,14 +53,18 @@ export default function Dashboard({
           <Skeleton count={4} className="skeleton-stat" />
         </div>
       ) : error ? (
-        <div className="empty-state">
-          <span className="empty-icon">⚠️</span>
+        <div className="empty-state flex flex-col items-center justify-center gap-2">
+          <AlertTriangle size={32} className="text-amber-500" />
           {error}
         </div>
       ) : (
         <div className="stats-grid">
-          {ORDER.map((key) => (
-            <div className={`stat-card ${key}`} key={key}>
+          {ORDER.map((key, i) => (
+            <div
+              className={`stat-card ${key}`}
+              key={key}
+              style={{ animationDelay: `${i * 60}ms` }}
+            >
               <div className="stat-icon">{STATUS_ICON[key as string]}</div>
               <div className="stat-info">
                 <div className="stat-value">{data?.counts[key] ?? 0}</div>
@@ -71,18 +76,23 @@ export default function Dashboard({
         </div>
       )}
 
-      <div className="section-title-row">
-        <h2 className="section-title">📄 {t("recent_orders")}</h2>
+      <div className="section-title-row flex items-center justify-between">
+        <h2 className="section-title flex items-center gap-2">
+          <FileText size={20} className="text-slate-500" />
+          <span>{t("recent_orders")}</span>
+        </h2>
         {onViewAll ? (
-          <button className="view-all-link" onClick={onViewAll}>
-            {t("view_all")} ›
+          <button className="view-all-link flex items-center gap-0.5" onClick={onViewAll}>
+            <span>{t("view_all")}</span>
+            <ChevronRight size={16} />
           </button>
         ) : null}
       </div>
+
       {error ? (
         <div className="po-list">
-          <div className="empty-state">
-            <span className="empty-icon">⚠️</span>
+          <div className="empty-state flex flex-col items-center justify-center gap-2">
+            <AlertTriangle size={32} className="text-amber-500" />
             {error}
           </div>
         </div>
@@ -91,7 +101,7 @@ export default function Dashboard({
           items={data?.recent ?? []}
           loading={loading}
           emptyMessage={t("empty_dashboard")}
-          emptyIcon="🧾"
+          emptyIcon={<ReceiptText size={32} className="text-slate-500" />}
           removingId={removingId}
           onOpen={(po) => onOpenPO(po.id)}
           onDelete={requestDelete}

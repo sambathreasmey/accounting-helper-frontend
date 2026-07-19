@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, ChangeEvent } from "react";
+import { X, Plus, RefreshCw, Trash2, ExternalLink, Building2, CalendarDays, Wallet, Package, Hash } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { useI18n, STATUS_KEY } from "@/lib/i18n";
 import { STATUS_ICON, fmtDate, poTotal } from "@/lib/format";
@@ -64,13 +65,23 @@ export default function DetailSheet({
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [poId]);
+  }, [poId, onClose, toast]);
 
   const editable = po?.status === "failed" || po?.status === "completed";
 
   const updateRow = (key: string, patch: Partial<EditableRow>) => {
     setRows((prev) => prev.map((r) => (r.key === key ? { ...r, ...patch } : r)));
+  };
+
+  const handleNumberChange = (key: string, field: "qty" | "price", val: string) => {
+    if (val === "") {
+      updateRow(key, { [field]: "" as unknown as number });
+      return;
+    }
+    const num = Number(val);
+    if (!isNaN(num)) {
+      updateRow(key, { [field]: num });
+    }
   };
 
   const addItem = () => {
@@ -122,7 +133,7 @@ export default function DetailSheet({
 
     setSending(true);
     try {
-      const updated = await api<PO>(`/api/webapp/po/${po.id}/regenerate`, {
+      await api<PO>(`/api/webapp/po/${po.id}/regenerate`, {
         method: "POST",
         body: JSON.stringify({
           po_id: editedPoId.trim() || po.po_id,
@@ -134,7 +145,6 @@ export default function DetailSheet({
       toast(t("regenerate_success"));
       onClose();
       onChanged();
-      void updated;
     } catch (e) {
       haptic("heavy");
       toast(e instanceof ApiError ? e.message : "Something went wrong");
@@ -147,8 +157,8 @@ export default function DetailSheet({
       <div className="sheet-backdrop" onClick={onClose} />
       <div className="sheet-content">
         <div className="sheet-handle" />
-        <button className="sheet-close" onClick={onClose}>
-          ✕
+        <button className="sheet-close" onClick={onClose} aria-label="Close">
+          <X size={16} />
         </button>
         <div id="sheet-body">
           {!po ? (
@@ -159,24 +169,37 @@ export default function DetailSheet({
               <div className="skeleton skeleton-card" />
             </>
           ) : (
-            <>
-              <div className="detail-title">
-                {po.po_id} — {po.supplier_name}
-              </div>
-              <div className="detail-sub">
+            <div className="detail-loaded">
+              <div className="detail-header">
+                <div className={`detail-avatar ${po.status}`}>
+                  <Building2 size={20} />
+                </div>
+                <div className="detail-header-text">
+                  <div className="detail-title">{po.po_id}</div>
+                  <div className="detail-supplier">{po.supplier_name}</div>
+                </div>
                 <span className={`badge ${po.status}`}>
-                  {STATUS_ICON[po.status] || ""} {t(STATUS_KEY[po.status] || "status_pending")}
+                  {STATUS_ICON[po.status]}
+                  <span>{t(STATUS_KEY[po.status] || "status_pending")}</span>
                 </span>
-                <span>{fmtDate(po.created_at, lang)}</span>
-                <span>
-                  · {t("total")} ${poTotal(po)}
+              </div>
+
+              <div className="meta-row">
+                <span className="meta-chip">
+                  <CalendarDays size={13} className="icon-glyph" />
+                  {fmtDate(po.created_at, lang)}
+                </span>
+                <span className="meta-chip">
+                  <Wallet size={13} className="icon-glyph" />
+                  {t("total")} ${poTotal(po)}
                 </span>
               </div>
 
               {po.error_message ? <div className="error-text">{po.error_message}</div> : null}
               {po.file_url ? (
                 <a className="link-btn" href={po.file_url} target="_blank" rel="noreferrer">
-                  {t("open_document")}
+                  <span>{t("open_document")}</span>
+                  <ExternalLink size={14} />
                 </a>
               ) : null}
 
@@ -187,20 +210,32 @@ export default function DetailSheet({
                     <span style={{ gridColumn: "span 3" }}>{t("supplier_label")}</span>
                   </div>
                   <div className="header-edit-row">
-                    <input
-                      value={editedPoId}
-                      placeholder={t("po_id_label")}
-                      onChange={(e) => setEditedPoId(e.target.value)}
-                    />
-                    <input
-                      value={supplierName}
-                      placeholder={t("supplier_placeholder")}
-                      onChange={(e) => setSupplierName(e.target.value)}
-                    />
+                    <div className="input-icon-wrap">
+                      <Hash size={14} className="input-icon" />
+                      <input
+                        value={editedPoId}
+                        placeholder={t("po_id_label")}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setEditedPoId(e.target.value)}
+                      />
+                    </div>
+                    <div className="input-icon-wrap">
+                      <Building2 size={14} className="input-icon" />
+                      <input
+                        value={supplierName}
+                        placeholder={t("supplier_placeholder")}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setSupplierName(e.target.value)}
+                      />
+                    </div>
                   </div>
                 </>
               ) : null}
 
+              <div className="section-title-row" style={{ marginTop: 4 }}>
+                <p className="section-title">
+                  <Package size={15} className="icon-glyph" style={{ color: "var(--accent)" }} />
+                  {t("col_item")}
+                </p>
+              </div>
               <div className="row-labels">
                 <span>{t("col_item")}</span>
                 <span>{t("col_qty")}</span>
@@ -208,14 +243,19 @@ export default function DetailSheet({
                 <span>{t("col_price")}</span>
               </div>
               <div id="items-editor">
-                {rows.map((row) => (
-                  <ItemRow key={row.key} disabled={!editable || rows.length <= 1} onRemove={() => removeRow(row.key)}>
+                {rows.map((row, idx) => (
+                  <ItemRow
+                    key={row.key}
+                    disabled={!editable || rows.length <= 1}
+                    onRemove={() => removeRow(row.key)}
+                    style={{ "--i": idx } as React.CSSProperties}
+                  >
                     <input
                       className="f-name"
                       value={row.name}
                       placeholder={t("col_item")}
                       disabled={!editable}
-                      onChange={(e) => updateRow(row.key, { name: e.target.value })}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => updateRow(row.key, { name: e.target.value })}
                     />
                     <input
                       className="f-qty"
@@ -224,14 +264,14 @@ export default function DetailSheet({
                       value={row.qty}
                       placeholder={t("col_qty")}
                       disabled={!editable}
-                      onChange={(e) => updateRow(row.key, { qty: Number(e.target.value) })}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => handleNumberChange(row.key, "qty", e.target.value)}
                     />
                     <input
                       className="f-packing"
                       value={row.packing}
                       placeholder={t("col_unit")}
                       disabled={!editable}
-                      onChange={(e) => updateRow(row.key, { packing: e.target.value })}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => updateRow(row.key, { packing: e.target.value })}
                     />
                     <input
                       className="f-price"
@@ -240,7 +280,7 @@ export default function DetailSheet({
                       value={row.price}
                       placeholder={t("col_price")}
                       disabled={!editable}
-                      onChange={(e) => updateRow(row.key, { price: Number(e.target.value) })}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => handleNumberChange(row.key, "price", e.target.value)}
                     />
                   </ItemRow>
                 ))}
@@ -249,13 +289,21 @@ export default function DetailSheet({
               {editable ? (
                 <div className="actions">
                   <button className="btn btn-secondary" onClick={addItem}>
-                    {t("add_item")}
+                    <Plus size={14} />
+                    <span>{t("add_item")}</span>
                   </button>
                   <button className="btn btn-primary" disabled={sending} onClick={submitRegenerate}>
-                    {sending ? t("sending") : t("regenerate")}
+                    <RefreshCw size={14} className={sending ? "animate-spin" : ""} />
+                    <span>{sending ? t("sending") : t("regenerate")}</span>
                   </button>
-                  <button className="btn btn-danger" disabled={deleting} onClick={submitDelete} title={t("delete")}>
-                    🗑️
+                  <button
+                    className="btn btn-danger"
+                    style={{ padding: "12px" }}
+                    disabled={deleting}
+                    onClick={submitDelete}
+                    title={t("delete")}
+                  >
+                    <Trash2 size={16} />
                   </button>
                 </div>
               ) : (
@@ -263,14 +311,15 @@ export default function DetailSheet({
                   <div className="detail-sub" style={{ marginTop: 14 }}>
                     {t("not_editable", t(STATUS_KEY[po.status] || "status_pending"))}
                   </div>
-                  <div className="actions">
-                    <button className="btn btn-danger" disabled={deleting} onClick={submitDelete}>
-                      🗑️ {deleting ? t("deleting") : t("delete")}
+                  <div className="actions" style={{ marginTop: 8 }}>
+                    <button className="btn btn-danger" style={{ flex: 1, width: "100%" }} disabled={deleting} onClick={submitDelete}>
+                      <Trash2 size={16} />
+                      <span>{deleting ? t("deleting") : t("delete")}</span>
                     </button>
                   </div>
                 </>
               )}
-            </>
+            </div>
           )}
         </div>
       </div>

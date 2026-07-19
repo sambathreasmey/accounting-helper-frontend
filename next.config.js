@@ -4,9 +4,13 @@ const nextConfig = {
   distDir: "out",
   images: { unoptimized: true },
   trailingSlash: true,
-  // The API lives on a separate FastAPI Cloud deployment. Set this at build
-  // time (Cloudflare Pages -> Settings -> Variables and secrets) to the
-  // backend's base URL, e.g. https://your-app.fastapicloud.dev
+  
+  // Dev Only
+  // allowedDevOrigins: [
+  //   'crushable-ambiance-foothold.ngrok-free.dev', 
+  //   '*.ngrok-free.dev'
+  // ],
+
   env: {
     NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || "",
   },

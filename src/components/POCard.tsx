@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { Trash2, Package } from "lucide-react"; // 1. Import the clean UI vector icons
 import { useI18n, STATUS_KEY } from "@/lib/i18n";
 import { STATUS_ICON, fmtDate, poTotal } from "@/lib/format";
 import { haptic } from "@/lib/telegram";
@@ -101,8 +102,9 @@ export default function POCard({
         if (removing) onRemoved(po);
       }}
     >
-      <div className="po-card-delete-action" onClick={handleDeleteClick}>
-        🗑️
+      {/* 2. Swapped 🗑️ emoji for a centered Trash2 vector icon */}
+      <div className="po-card-delete-action flex items-center justify-center" onClick={handleDeleteClick}>
+        <Trash2 size={20} />
       </div>
       <div
         ref={cardRef}
@@ -114,18 +116,23 @@ export default function POCard({
         onTouchCancel={onEnd}
       >
         <div className="po-card-main">
-          <div className="po-card-icon">🛍️</div>
+          {/* 3. Swapped 🛍️ emoji for a clean Package frame icon */}
+          <div className="po-card-icon flex items-center justify-center">
+            <Package size={20} className="text-purple-400" />
+          </div>
           <div className="po-card-text">
             <div className="po-card-title">
               {po.po_id} — {po.supplier_name}
             </div>
+            {/* 4. Removed 📅 emoji to keep the date subtitle string sharp */}
             <div className="po-card-sub">
-              📅 {fmtDate(po.created_at, lang)} &nbsp;•&nbsp; ${poTotal(po)}
+              {fmtDate(po.created_at, lang)} &nbsp;•&nbsp; ${poTotal(po)}
             </div>
           </div>
         </div>
+        {/* 5. Removed direct emoji handling here, letting clean badges group it */}
         <span className={`badge ${po.status}`}>
-          {STATUS_ICON[po.status] || ""} {t(STATUS_KEY[po.status] || "status_pending")}
+          {t(STATUS_KEY[po.status] || "status_pending")}
         </span>
       </div>
     </div>

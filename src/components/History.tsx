@@ -1,6 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { 
+  Clock, 
+  RefreshCw, 
+  CheckCircle2, 
+  XCircle, 
+  Layers, 
+  AlertTriangle, 
+  Search 
+} from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { useDeletePO } from "@/lib/useDeletePO";
@@ -10,12 +19,19 @@ import type { HistoryData, PO, POStatus } from "@/lib/types";
 
 const PAGE_SIZE = 20;
 
-const FILTERS: { status: "" | POStatus; icon: string; labelKey: string }[] = [
-  { status: "", icon: "", labelKey: "filter_all" },
-  { status: "pending", icon: "⏳", labelKey: "status_pending" },
-  { status: "dispatched", icon: "🚀", labelKey: "status_dispatched" },
-  { status: "completed", icon: "✅", labelKey: "status_completed" },
-  { status: "failed", icon: "❌", labelKey: "status_failed" },
+interface FilterConfig {
+  status: "" | POStatus;
+  Icon: React.ComponentType<{ size?: number | string; className?: string }>;
+  labelKey: string;
+  themeClass: string; 
+}
+
+const FILTERS: FilterConfig[] = [
+  { status: "", Icon: Layers, labelKey: "filter_all", themeClass: "filter-all" },
+  { status: "pending", Icon: Clock, labelKey: "status_pending", themeClass: "filter-pending" },
+  { status: "dispatched", Icon: RefreshCw, labelKey: "status_dispatched", themeClass: "filter-dispatched" },
+  { status: "completed", Icon: CheckCircle2, labelKey: "status_completed", themeClass: "filter-completed" },
+  { status: "failed", Icon: XCircle, labelKey: "status_failed", themeClass: "filter-failed" },
 ];
 
 export default function History({ onOpenPO }: { onOpenPO: (id: string) => void }) {
@@ -56,26 +72,34 @@ export default function History({ onOpenPO }: { onOpenPO: (id: string) => void }
   return (
     <section className="tab-panel active">
       <div className="filters" id="status-filters">
-        {FILTERS.map((f) => (
-          <button
-            key={f.status}
-            className={`chip${status === f.status ? " active" : ""}`}
-            onClick={() => {
-              haptic("light");
-              setStatus(f.status);
-              setPage(1);
-            }}
-          >
-            {f.icon ? `${f.icon} ` : ""}
-            {t(f.labelKey)}
-          </button>
-        ))}
+        {FILTERS.map(({ status: filterStatus, Icon, labelKey, themeClass }, i) => {
+          const isActive = status === filterStatus;
+
+          return (
+            <button
+              key={filterStatus}
+              className={`chip ${themeClass} ${isActive ? "active" : ""}`}
+              style={{ animationDelay: `${i * 45}ms` }}
+              onClick={() => {
+                haptic("light");
+                setStatus(filterStatus);
+                setPage(1);
+              }}
+            >
+              <Icon
+                size={14}
+                className={`shrink-0 icon-glyph ${filterStatus === "dispatched" && isActive ? "animate-spin-slow" : ""}`}
+              />
+              <span className="truncate">{t(labelKey)}</span>
+            </button>
+          );
+        })}
       </div>
 
       {error ? (
         <div className="po-list">
-          <div className="empty-state">
-            <span className="empty-icon">⚠️</span>
+          <div className="empty-state flex flex-col items-center justify-center gap-2">
+            <AlertTriangle size={32} className="text-amber-500 animate-pulse" />
             {error}
           </div>
         </div>
@@ -85,7 +109,7 @@ export default function History({ onOpenPO }: { onOpenPO: (id: string) => void }
             items={data?.items ?? []}
             loading={loading}
             emptyMessage={t("empty_history")}
-            emptyIcon="🔎"
+            emptyIcon={<Search size={32} className="text-slate-500 empty-icon" />}
             removingId={removingId}
             onOpen={(po) => onOpenPO(po.id)}
             onDelete={requestDelete}

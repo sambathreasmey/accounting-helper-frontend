@@ -10,7 +10,7 @@ type StringValue = string | ((...args: any[]) => string);
 const STRINGS: Record<Lang, Record<string, StringValue>> = {
   en: {
     subtitle: "Purchase order dashboard",
-    greeting: (name: string) => `Hi, ${name} 👋`,
+    greeting: (name: string) => `Hi, ${name}`, // Removed wave emoji
     tab_dashboard: "Dashboard",
     tab_history: "History",
     recent_orders: "Recent Orders",
@@ -25,12 +25,12 @@ const STRINGS: Record<Lang, Record<string, StringValue>> = {
     prev: "← Prev",
     next: "Next →",
     total: "Total",
-    open_document: "📄 Open generated document",
+    open_document: "Open generated document", // Removed document emoji
     not_editable: (status: string) => `This order is ${status}; it can be edited once it completes or fails.`,
-    add_item: "+ Add item",
-    regenerate: "🔁 Regenerate",
+    add_item: "Add item",
+    regenerate: "Regenerate", // Removed loop arrows emoji
     sending: "Sending…",
-    regenerate_success: "Regeneration triggered ✅",
+    regenerate_success: "Regeneration triggered", // Removed checkmark emoji
     add_valid_item: "Add at least one valid item",
     no_order_loaded: "No order loaded",
     po_id_label: "PO ID",
@@ -49,7 +49,7 @@ const STRINGS: Record<Lang, Record<string, StringValue>> = {
   },
   km: {
     subtitle: "ផ្ទាំងគ្រប់គ្រងបញ្ជាទិញ",
-    greeting: (name: string) => `សួស្តី ${name} 👋`,
+    greeting: (name: string) => `សួស្តី ${name}`, // Removed wave emoji
     tab_dashboard: "ផ្ទាំងគ្រប់គ្រង",
     tab_history: "ប្រវត្តិ",
     recent_orders: "បញ្ជាទិញថ្មីៗ",
@@ -64,12 +64,12 @@ const STRINGS: Record<Lang, Record<string, StringValue>> = {
     prev: "← មុន",
     next: "បន្ទាប់ →",
     total: "សរុប",
-    open_document: "📄 បើកឯកសារដែលបានបង្កើត",
+    open_document: "បើកឯកសារដែលបានបង្កើត", // Removed document emoji
     not_editable: (status: string) => `បញ្ជាទិញនេះស្ថិតក្នុងស្ថានភាព ${status}; អាចកែសម្រួលបានបន្ទាប់ពីវាបញ្ចប់ ឬបរាជ័យ`,
-    add_item: "+ បន្ថែមទំនិញ",
-    regenerate: "🔁 បង្កើតឡើងវិញ",
+    add_item: "បន្ថែមទំនិញ",
+    regenerate: "បង្កើតឡើងវិញ", // Removed loop arrows emoji
     sending: "កំពុងផ្ញើ…",
-    regenerate_success: "បានបញ្ជូនសំណើបង្កើតឡើងវិញ ✅",
+    regenerate_success: "បានបញ្ជូនសំណើបង្កើតឡើងវិញ", // Removed checkmark emoji
     add_valid_item: "សូមបន្ថែមទំនិញត្រឹមត្រូវយ៉ាងហោចណាស់មួយ",
     no_order_loaded: "មិនមានបញ្ជាទិញផ្ទុក",
     po_id_label: "លេខបញ្ជាទិញ",

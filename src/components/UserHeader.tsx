@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { User } from "lucide-react"; // 1. Import the clean User icon
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import type { MeData } from "@/lib/types";
@@ -25,7 +26,11 @@ export default function UserHeader() {
 
   if (!me) return null;
 
-  const name = me.first_name || (lang === "km" ? "អ្នក" : "there");
+  const fullName = [me.first_name, me.last_name]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+  const name = fullName || (lang === "km" ? "អ្នក" : "there");
 
   return (
     <header className="user-header">
@@ -33,7 +38,10 @@ export default function UserHeader() {
         // eslint-disable-next-line @next/next/no-img-element
         <img className="user-avatar" src={me.photo_url} alt="" />
       ) : (
-        <div className="user-avatar-fallback">🕶️</div>
+        // 2. Swapped out the sunglasses emoji for a sleek SVG icon
+        <div className="user-avatar-fallback flex items-center justify-center bg-slate-800 text-slate-400 rounded-full w-full h-full">
+          <User size={20} strokeWidth={2} />
+        </div>
       )}
       <div className="user-header-text">
         <div className="user-greeting">{t("greeting", name)}</div>

@@ -1,5 +1,7 @@
 "use client";
 
+import React from "react";
+import { Inbox } from "lucide-react";
 import POCard from "./POCard";
 import type { PO } from "@/lib/types";
 
@@ -17,7 +19,7 @@ export default function POList({
   items,
   loading,
   emptyMessage,
-  emptyIcon = "📭",
+  emptyIcon = <Inbox size={32} className="text-slate-400" />,
   removingId,
   onOpen,
   onDelete,
@@ -26,7 +28,7 @@ export default function POList({
   items: PO[];
   loading: boolean;
   emptyMessage: string;
-  emptyIcon?: string;
+  emptyIcon?: React.ReactNode;
   removingId: string | null;
   onOpen: (po: PO) => void;
   onDelete: (po: PO) => void;
@@ -43,9 +45,9 @@ export default function POList({
   if (!items.length) {
     return (
       <div className="po-list">
-        <div className="empty-state">
-          <span className="empty-icon">{emptyIcon}</span>
-          {emptyMessage}
+        <div className="empty-state flex flex-col items-center justify-center gap-2">
+          <span className="empty-icon flex items-center justify-center">{emptyIcon}</span>
+          <span className="text-sm text-hint">{emptyMessage}</span>
         </div>
       </div>
     );
